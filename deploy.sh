@@ -6,3 +6,7 @@ echo 123456 | sudo docker secret create db-password -
 echo 123456 | sudo docker secret create db-root-password -
 
 sudo docker stack deploy -c ./docker-compose.yml app
+
+sudo docker stack ls
+
+sudo docker stack services app
