@@ -1,8 +1,8 @@
-sudo docker secret create admin-user hhd
-sudo docker secret create admin-password 123456
-sudo docker secret create admin-email taghalloby@gmail.com
-sudo docker secret create db-user hhd
-sudo docker secret create db-password 123456
-sudo docker secret create db-root-password 123456
+echo hhd | sudo docker secret create admin-user -
+echo 123456 | sudo docker secret create admin-password -
+echo taghalloby@gmail.com | sudo docker secret create admin-email -
+echo hhd | sudo docker secret create db-user -
+echo 123456 | sudo docker secret create db-password -
+echo 123456 | sudo docker secret create db-root-password -
 
-sudo docker stack deploy -c ./docker-compose.yml --orchestrator swarm app
+sudo docker stack deploy -c ./docker-compose.yml app
