@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+    phpmyadmin:
+        image: phpmyadmin:5.2.1-apache
+        container_name: phpmyadmin
+        ports:
+            - 8080:80
+        restart: unless-stopped
+        secrets:
+            - db-user
+            - db-password
+            - db-root-password
+        env_file:
+            - .env
+        environment:
+            MYSQL_USER_FILE: /run/secrets/db-user
+            MYSQL_PASSWORD_FILE: /run/secrets/db-password
+            MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-root-password
+            PMA_ARBITRARY: "1"
+        depends_on:
+            mysql:
+                condition: service_healthy
+        networks:
+            - frontend
+            - backend
+    app:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        container_name: app
+        user: "33:33"
+        restart: unless-stoped
+        ports:
+            - 80:80
+            - 443:443
+        secrets:
+            - db-user
+            - db-password
+        env_file:
+            - .env
+        environment:
+            WORDPRESS_DB_HOST: mysql
+            WORDPRESS_DB_USER_FILE: /run/secrets/db-user
+            WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db-password
+            WORDPRESS_DB_NAME: ${DB_NAME}
+        volumes:
+            - app:/var/www/html
+        depends_on:
+            mysql:
+                condition: service_healthy
+        networks:
+            - frontend
+            - backend
+    mysql:
+        image: mysql:8.0.33
+        container_name: mysql
+        restart: unless-stopped
+        healthcheck:
+            test: "/usr/bin/mysql --user=$${DB_USER_FILE} --password=$${DB_PASSWORD_FILE} --execute \"SHOW DATABASES;\""
+            interval: 10s
+            timeout: 7s
+            retries: 15
+            start_period: 4s
+        secrets:
+            - db-user
+            - db-password
+            - db-root-password
+        env_file:
+            - .env
+        environment:
+            MYSQL_USER_FILE: /run/secrets/db-user
+            MYSQL_PASSWORD_FILE: /run/secrets/db-password
+            MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-root-password
+            MYSQL_DATABASE: ${DB_NAME}
+        volumes:
+            - db:/var/lib/mysql
+        networks:
+            - backend
+
+secrets:
+    admin-user:
+        external: true
+    admin-password:
+        external: true
+    admin-email:
+        external: true
+    db-user:
+        external: true
+    db-password:
+        external: true
+    db-root-password:
+        external: true
+volumes:
+    app: {}
+    db: {}
+networks:
+    backend:
+        driver: bridge
+    frontend:
+        driver: bridge
