@@ -5,7 +5,6 @@ services:
         image: phpmyadmin:5.2.1-apache
         ports:
             - 8080:80
-        restart: unless-stopped
         secrets:
             - db-user
             - db-password
@@ -18,13 +17,11 @@ services:
         depends_on:
             - mysql
         networks:
-            - frontend
             - backend
         deploy:
             replicas: 1
     app:
         image: wordpress:6.2.2-php8.2-apache
-        restart: unless-stoped
         ports:
             - 80:80
             - 443:443
@@ -32,22 +29,20 @@ services:
             - db-user
             - db-password
         environment:
-            WORDPRESS_DB_HOST: mysql
+            WORDPRESS_DB_HOST: mysql:3306
             WORDPRESS_DB_USER_FILE: /run/secrets/db-user
             WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db-password
-            WORDPRESS_DB_NAME: ${DB_NAME}
+            WORDPRESS_DB_NAME: db
         volumes:
             - app:/var/www/html
         depends_on:
             - mysql
         networks:
-            - frontend
             - backend
         deploy:
             replicas: 1
     mysql:
         image: mysql:8.0.33
-        restart: unless-stopped
         secrets:
             - db-user
             - db-password
@@ -56,7 +51,7 @@ services:
             MYSQL_USER_FILE: /run/secrets/db-user
             MYSQL_PASSWORD_FILE: /run/secrets/db-password
             MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-root-password
-            MYSQL_DATABASE: ${DB_NAME}
+            MYSQL_DATABASE: db
         volumes:
             - db:/var/lib/mysql
         networks:
@@ -82,4 +77,5 @@ volumes:
     db: {}
 networks:
     backend:
-    frontend:
+        driver: overlay
+          
