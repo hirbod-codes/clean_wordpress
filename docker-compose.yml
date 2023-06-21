@@ -19,11 +19,12 @@ services:
             MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-root-password
             PMA_ARBITRARY: "1"
         depends_on:
-            mysql:
-                condition: service_healthy
+            - mysql
         networks:
             - frontend
             - backend
+        deploy:
+          replicas: 1
     app:
         build:
             context: ./
@@ -47,21 +48,16 @@ services:
         volumes:
             - app:/var/www/html
         depends_on:
-            mysql:
-                condition: service_healthy
+            - mysql
         networks:
             - frontend
             - backend
+        deploy:
+          replicas: 1
     mysql:
         image: mysql:8.0.33
         container_name: mysql
         restart: unless-stopped
-        healthcheck:
-            test: "/usr/bin/mysql --user=$${DB_USER_FILE} --password=$${DB_PASSWORD_FILE} --execute \"SHOW DATABASES;\""
-            interval: 10s
-            timeout: 7s
-            retries: 15
-            start_period: 4s
         secrets:
             - db-user
             - db-password
@@ -77,6 +73,8 @@ services:
             - db:/var/lib/mysql
         networks:
             - backend
+        deploy:
+          replicas: 1
 
 secrets:
     admin-user:
