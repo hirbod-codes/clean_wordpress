@@ -1,3 +1,3 @@
-sudo dokcer info
+sudo docker info
 
 sudo docker swarm init
