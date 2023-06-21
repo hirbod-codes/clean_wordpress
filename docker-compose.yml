@@ -11,8 +11,6 @@ services:
             - db-user
             - db-password
             - db-root-password
-        env_file:
-            - .env
         environment:
             MYSQL_USER_FILE: /run/secrets/db-user
             MYSQL_PASSWORD_FILE: /run/secrets/db-password
@@ -24,11 +22,9 @@ services:
             - frontend
             - backend
         deploy:
-          replicas: 1
+            replicas: 1
     app:
-        build:
-            context: ./
-            dockerfile: Dockerfile
+        image: wordpress:6.2.2-php8.2-apache
         container_name: app
         user: "33:33"
         restart: unless-stoped
@@ -38,8 +34,6 @@ services:
         secrets:
             - db-user
             - db-password
-        env_file:
-            - .env
         environment:
             WORDPRESS_DB_HOST: mysql
             WORDPRESS_DB_USER_FILE: /run/secrets/db-user
@@ -53,7 +47,7 @@ services:
             - frontend
             - backend
         deploy:
-          replicas: 1
+            replicas: 1
     mysql:
         image: mysql:8.0.33
         container_name: mysql
@@ -62,8 +56,6 @@ services:
             - db-user
             - db-password
             - db-root-password
-        env_file:
-            - .env
         environment:
             MYSQL_USER_FILE: /run/secrets/db-user
             MYSQL_PASSWORD_FILE: /run/secrets/db-password
@@ -74,7 +66,7 @@ services:
         networks:
             - backend
         deploy:
-          replicas: 1
+            replicas: 1
 
 secrets:
     admin-user:
@@ -94,6 +86,4 @@ volumes:
     db: {}
 networks:
     backend:
-        driver: bridge
     frontend:
-        driver: bridge
