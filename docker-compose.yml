@@ -3,7 +3,6 @@ version: '3.8'
 services:
     phpmyadmin:
         image: phpmyadmin:5.2.1-apache
-        container_name: phpmyadmin
         ports:
             - 8080:80
         restart: unless-stopped
@@ -25,8 +24,6 @@ services:
             replicas: 1
     app:
         image: wordpress:6.2.2-php8.2-apache
-        container_name: app
-        user: "33:33"
         restart: unless-stoped
         ports:
             - 80:80
@@ -50,7 +47,6 @@ services:
             replicas: 1
     mysql:
         image: mysql:8.0.33
-        container_name: mysql
         restart: unless-stopped
         secrets:
             - db-user
