@@ -1,2 +1,3 @@
-sudo ./initiate.sh
-sudo ./deploy.sh
+./initiate.sh
+
+./deploy.sh
